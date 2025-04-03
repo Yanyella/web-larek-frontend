@@ -43,7 +43,7 @@ yarn build
 
 ## Данные и типы данных, используемые в приложении
 
-// Описание стутуры данных товара
+// Описание структуры данных товара
 
 export interface ICard { \
 	id: string; - идентификатор товара \
@@ -66,7 +66,7 @@ export interface IUser { \
     total: number; - полнас стоимость товара \ 
 }
 
-// Описание стркутры данных массива карточек
+// Описание структуры данных массива карточек
 
 export interface ICardsList { \
 	total: number;  - общее количество карточек товара на главной странице \
@@ -75,14 +75,14 @@ export interface ICardsList { \
     addBasket(cardId: string, payload: Function | null): void; - добавление товара в корзину \
 }
 
-// Описание стркутуры элемента данных корзины, унаследованных от карточки
+// Описание структуры элемента данных корзины, унаследованных от карточки
 
 export interface IBasketItem extends ICard { \
     title: string; - название товара \
     price: number; - цена товара \
 }
 
-// Описание стркутуры данных корзины
+// Описание структуры данных корзины
 
 export interface IBasket{ \
     item: IBasketItem; - элемент товара \
