@@ -5,7 +5,7 @@ import { ensureElement } from "../../utils/utils";
 
 //интерфейс действий над карточкой
 export interface ICardAction {
-	click: (event: MouseEvent) => void;
+	onClick: (event: MouseEvent) => void;
 }
 
 // категории карточек 
@@ -43,11 +43,11 @@ export class Card extends Component<ICard> {
         this.cardButton = container.querySelector('.card__button');
         this.events = events;
 
-        if(operation?.click) {
+        if(operation?.onClick) {
             if (this.cardButton) {
-				this.cardButton.addEventListener('click', operation.click);
+				this.cardButton.addEventListener('click', operation.onClick);
 			} else {
-				container.addEventListener('click',operation.click);
+				container.addEventListener('click',operation.onClick);
 			}
         }
     }
