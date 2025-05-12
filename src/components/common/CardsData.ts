@@ -8,9 +8,9 @@ export class CardsData implements ICardsList {
     protected events: IEvents;
 
     constructor(events: IEvents) {
-        this._cards = []; // инициализация
-        this._preview = null; // инициализация
-        this._count = 0; // инициализация
+        this._cards = [];
+        this._preview = null;
+        this._count = 0;
         this.events = events;
     }
     
@@ -24,19 +24,24 @@ export class CardsData implements ICardsList {
         this.events.emit('cards:changed', value);
     }
 
-    getCardPreview(id: string) {
-        return this._cards.find(card => card.id === id) || null;
+    getCard(cardId: string): ICard | undefined {
+        return this._cards.find((item) => item.id === cardId);
+    }
+   
+    setCardPreview(cardId: string | null) {
+        this._preview = null;
+        if (!cardId) return;
+
+        const selectedCard = this.getCard(cardId);
+        if (selectedCard) {
+            this._preview = cardId;
+            this.events.emit('card:selected', selectedCard);
+        }
     }
 
-    cardIdPreview(item: ICard): void {
-		if (!item) return; 
-        this._preview = item.id;
-        this.events.emit('preview:change', item);
-	}
-
     get preview(): string | null {
-		return this._preview;
-	}
+        return this._preview;
+    }
 
     get count(): number {
         return this._count;
