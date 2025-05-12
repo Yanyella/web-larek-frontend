@@ -31,19 +31,12 @@ export interface IUserResponce {
 export interface ICardsList {
     cards: ICard[];
     count: number;
-    getCardPreview(id: string): void;
-    cardIdPreview(item: ICard): void;
+    getCard(cardId: string): ICard | undefined;
 }
 
 // Описание стркутуры данных корзины
 export interface IBasket{
     cards: ICard[]; // массив товаров в корзине
-    total: number; // стоимость товара в корзине
-    addCardandUpdateTotal(card: ICard): void // добавление товара в корзину и обновление общей стоимости
-    hasCardInBasket(cardId: string): boolean // проверка есть ли товар в корзине
-    removeCardandUpdateTotal(cardId: string): void; // удаление товара из корзины и обновление общей стоимости
-    clearBasket() : void // метод очистки корзины
-    getBasketCountCards(): void // метод возвращающий количество товара в корзине
 }
 
 export interface IPage {
