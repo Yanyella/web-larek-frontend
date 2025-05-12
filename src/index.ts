@@ -5,10 +5,11 @@ import { cloneTemplate, ensureElement } from './utils/utils';
 import { AppApi } from './components/common/AppApi';
 import { CardsData } from './components/common/CardsData';
 import { Page } from './components/common/Page';
-import { ICard } from './types';
+import { ICard, ICardsList } from './types';
 import { Card } from './components/common/Card';
 import { Modal } from './components/common/Modal';
 import { IEvents } from './components/base/events';
+import { BasketData } from './components/common/BasketData';
 
 const events = new EventEmitter();
 const api = new AppApi(API_URL, CDN_URL);
@@ -24,6 +25,7 @@ const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 
 const cardsData = new CardsData(events);
+const basketData = new BasketData(events);
 const page = new Page(document.body, events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 
@@ -57,27 +59,37 @@ events.on('cards:changed', (items: ICard[]) => {
 // выбор карточки
 
 events.on('card:selected', (item: ICard) => {
-  cardsData.cardIdPreview(item);
+    cardsData.setCardPreview(item.id); 
 });
 
-// функция создания модального окна с карточкой
-
 function createPreviewCard(item: ICard) {
-
-  const card = new Card(cloneTemplate(cardPreviewTemplate), events);
-   
-   return card.render({
-    title: item.title,
-    description: item.description,
-    category: item.category,
-    image: item.image,
-    price: item.price,
-  });
+    const card = new Card(cloneTemplate(cardPreviewTemplate), events, {
+        click: () => { 
+            events.emit('card:basket', item);
+            modal.close();
+        },
+    });
+    
+    return card.render({
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        image: item.image,
+        price: item.price,
+        cardButton: basketData.getButtonStatus(item)
+    });
 }
 
 events.on('preview:open', (item: ICard) => {
-  modal.render({
-      content: createPreviewCard(item)
-  });
+    modal.render({
+        content: createPreviewCard(item)
+    });
 });
 
+events.on('modal:open', () => {
+	page.pageLocked = true;
+});
+
+events.on('modal:close', () => {
+	page.pageLocked = false;
+});
