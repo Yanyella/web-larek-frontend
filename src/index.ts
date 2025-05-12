@@ -60,11 +60,12 @@ events.on('cards:changed', (items: ICard[]) => {
 
 events.on('card:selected', (item: ICard) => {
     cardsData.setCardPreview(item.id); 
+    events.emit('preview:open', item); 
 });
 
 function createPreviewCard(item: ICard) {
     const card = new Card(cloneTemplate(cardPreviewTemplate), events, {
-        click: () => { 
+        onClick: () => { 
             events.emit('card:basket', item);
             modal.close();
         },
@@ -81,9 +82,12 @@ function createPreviewCard(item: ICard) {
 }
 
 events.on('preview:open', (item: ICard) => {
-    modal.render({
-        content: createPreviewCard(item)
-    });
+    if (modal) { 
+        modal.render({
+            content: createPreviewCard(item)
+        });
+        modal.open(); 
+    }
 });
 
 events.on('modal:open', () => {
