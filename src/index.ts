@@ -35,18 +35,20 @@ api.getCardList()
   .then((data) => {
     cardsData.cards = data;
     console.log(cardsData.cards);
-    events.emit('cards:loaded'); 
   })  
   .catch((err) => {
     console.error('Не удалось загрузить карточки:', err);
-    events.emit('cards:load-error', err);
 });
 
 // обновление каталога товаров
 
 events.on('cards:changed', (items: ICard[]) => {
   page.gallery = items.map(item => {
-    const card = new Card(cloneTemplate(cardCatalogTemplate), events);
+    const card = new Card(cloneTemplate(cardCatalogTemplate), events, {
+      onClick: () => {
+				events.emit('card:selected', item);
+			},
+    });
     return card.render({
       category: item.category,
       title: item.title,
@@ -59,35 +61,28 @@ events.on('cards:changed', (items: ICard[]) => {
 // выбор карточки
 
 events.on('card:selected', (item: ICard) => {
-    cardsData.setCardPreview(item.id); 
-    events.emit('preview:open', item); 
+    cardsData.setPreview(item); 
 });
 
-function createPreviewCard(item: ICard) {
-    const card = new Card(cloneTemplate(cardPreviewTemplate), events, {
-        onClick: () => { 
-            events.emit('card:basket', item);
-            modal.close();
-        },
-    });
-    
-    return card.render({
-        title: item.title,
-        description: item.description,
-        category: item.category,
-        image: item.image,
-        price: item.price,
-        cardButton: basketData.getButtonStatus(item)
-    });
-}
+events.on('preview:change', (item: ICard) => {
+	const card = new Card(cloneTemplate(cardPreviewTemplate), events, {
+		onClick: () => {
+			events.emit('preview:change', item);
+      modal.close();
+		},
+	});
 
-events.on('preview:open', (item: ICard) => {
-    if (modal) { 
-        modal.render({
-            content: createPreviewCard(item)
-        });
-        modal.open(); 
-    }
+	modal.render({
+		content: card.render({
+			id: item.id,
+			category: item.category,
+			description: item.description,
+			image: item.image,
+			price: item.price,
+			title: item.title,
+			cardButton: basketData.getButtonStatus(item),
+		}),
+	});
 });
 
 events.on('modal:open', () => {
