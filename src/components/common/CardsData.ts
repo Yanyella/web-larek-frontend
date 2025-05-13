@@ -24,20 +24,14 @@ export class CardsData implements ICardsList {
         this.events.emit('cards:changed', value);
     }
 
-    getCard(cardId: string): ICard | undefined {
-        return this._cards.find((item) => item.id === cardId);
+    getCard(cardId: string) {
+        return this._cards.find((item) => item.id === cardId)
     }
    
-    setCardPreview(cardId: string | null) {
-        this._preview = null;
-        if (!cardId) return;
-
-        const selectedCard = this.getCard(cardId);
-        if (selectedCard) {
-            this._preview = cardId;
-            this.events.emit('card:selected', selectedCard);
-        }
-    }
+    setPreview(card: ICard): void {
+		this._preview = card.id;
+		this.events.emit('preview:change', card);
+	}
 
     get preview(): string | null {
         return this._preview;
