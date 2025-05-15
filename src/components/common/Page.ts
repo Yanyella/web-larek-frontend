@@ -33,7 +33,7 @@ export class Page extends Component<IPage> {
         this.toggleClass(this._pageWrapper, 'page__wrapper_locked', value);
 	}
 
-	setBasketCounter(value: number): void {
-        this.setText(this._headerBasketCounter, value);
+	setBasketCounter(value: number) {
+        this.setText(this._headerBasketCounter, String(value));
     }
 }

@@ -18,7 +18,7 @@ export const categoryMap: { [key: string]: string } = {
 	дополнительное: 'card__category_additional',
 };
 
-// класс представления карточки 
+// класс представления карточки в модальном окне
 
 export class Card extends Component<ICard> {
 
@@ -29,6 +29,7 @@ export class Card extends Component<ICard> {
     protected cardCategory: HTMLElement; 
     protected cardPrice: HTMLElement; 
     protected cardButton: HTMLButtonElement;
+    protected cardIndex: HTMLElement;
     protected events: IEvents;
     
     
@@ -36,11 +37,12 @@ export class Card extends Component<ICard> {
         super(container);
 
         this.cardText = container.querySelector('.card__text'); 
-        this.cardImage = ensureElement<HTMLImageElement>('.card__image', this.container);
+        this.cardImage = container.querySelector('.card__image');
         this.cardTitle = container.querySelector('.card__title'); 
         this.cardCategory = container.querySelector('.card__category'); 
         this.cardPrice = container.querySelector('.card__price'); 
         this.cardButton = container.querySelector('.card__button');
+        this.cardIndex = container.querySelector('.basket__item-index');
         this.events = events;
 
         if(operation?.onClick) {
@@ -97,5 +99,13 @@ export class Card extends Component<ICard> {
     set price(price: number | null) {
         price === null ? this.setText(this.cardPrice, `бесценно`) : this.setText(this.cardPrice, `${price} синапсов`); 
     }
+
+    get indexCard(): string {
+		return this.cardIndex.textContent || '';
+	}
+
+	set indexCard(value: string | string[]) {
+		this.setText(this.cardIndex, value);
+	}
    
 }
