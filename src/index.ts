@@ -5,12 +5,17 @@ import { cloneTemplate, ensureElement } from './utils/utils';
 import { AppApi } from './components/common/AppApi';
 import { CardsData } from './components/common/CardsData';
 import { Page } from './components/common/Page';
-import { ICard, ICardsList } from './types';
+import { ICard, IUser, IOrder, IContacts } from './types';
 import { Card } from './components/common/Card';
 import { Modal } from './components/common/Modal';
 import { IEvents } from './components/base/events';
 import { BasketData } from './components/common/BasketData';
 import { Basket } from './components/common/Basket';
+import { OrderData } from './components/common/OrderData';
+import { OrderForm } from './components/common/OrderForm';
+import { ContactsForm } from './components/common/ContactsForm';
+import { SuccessData } from './components/common/SuccessData';
+import { Success } from './components/common/Success';
 
 const events = new EventEmitter();
 const api = new AppApi(API_URL, CDN_URL);
@@ -25,11 +30,24 @@ const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 
+// класс данных
+
 const cardsData = new CardsData(events);
 const basketData = new BasketData(events);
-const basket = new Basket(cloneTemplate(basketTemplate), events);
+const orderData = new OrderData(events);
+const successData = new SuccessData(events);
+
+// главная страница 
+
 const page = new Page(document.body, events);
+
+// класс представления 
+
+const basket = new Basket(cloneTemplate(basketTemplate), events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
+const order = new OrderForm(cloneTemplate(orderTemplate), events);
+const contacts = new ContactsForm(cloneTemplate(contactsTemplate), events);
+const success = new Success(cloneTemplate(successTemplate), events);
 
 // загрузка карточек с сервера
 
@@ -42,7 +60,7 @@ api.getCardList()
     console.error('Не удалось загрузить карточки:', err);
 });
 
-// обновление каталога товаров
+// обновление каталога 
 
 events.on('cards:changed', (items: ICard[]) => {
   page.gallery = items.map(item => {
@@ -93,6 +111,7 @@ events.on('preview:change', (item: ICard) => {
 
 events.on('card:basket', (item: ICard) => {
     basketData.addCard(item);
+	modal.close();
 });
 
 // открытие корзины
@@ -120,7 +139,7 @@ events.on('basket:open', () => {
 	});
 });  
 
-// удалить товар из корзины
+// удаление товара из корзины
 
 events.on('card:delete', (item: ICard) => {
     basketData.removeItemFromBasket(item);
@@ -128,9 +147,98 @@ events.on('card:delete', (item: ICard) => {
     page.setBasketCounter(basketData.cards.length);
 });
 
+// открытие формы выбора способа оплаты и указания адреса
+
+events.on('order:open', () => {
+	basketData.clearBasket();
+	modal.render({
+		content: order.render({
+			payment: 'card',
+			address: '',
+			valid: false,
+			errors: [],
+		}),
+	});
+});
+
+// форма для заполнения email и телефона
+
+events.on('order:submit', () => {
+	modal.render({
+		content: contacts.render({
+			email: '',
+			phone: '',
+			valid: false,
+			errors: [],
+		}),
+	});
+});
+
+// изменение полей формы 
+
+events.on(
+	/^order\..*:change$/,
+	(data: { field: keyof IOrder; value: string }) => {
+		orderData.setOrderField(data.field, data.value);
+		orderData.validateOrder();
+	}
+);
+
+events.on(
+	/^contacts\..*:change$/,
+	(data: { field: keyof IOrder; value: string }) => {
+		orderData.setOrderField(data.field, data.value);
+		orderData.validateOrder();
+	}
+);
+
+// обработка ошибок 
+
+events.on('orderErrors:change', (error: Partial<IOrder>) => {
+	const { payment, address } = error;
+	const formIsValid = !payment && !address;
+	order.valid = formIsValid;
+	if (!formIsValid) {
+		order.errors = address;
+	} else {
+		order.errors = '';
+	}
+});
+
+events.on('contactsErrors:change', (error: Partial<IContacts>) => {
+	const { email, phone } = error;
+	const formIsValid = !email && !phone;
+	contacts.valid = formIsValid;
+	if (!formIsValid) {
+		contacts.errors = email || phone;
+	} else {
+		contacts.errors = '';
+	}
+});
+
+// oтправлена форма заказа
+
+events.on('contacts:submit', (userData: IUser) => {  
+  api
+    .orderUserResult(userData)  
+    .then((data) => {
+      modal.render({
+        content: success.render(),
+      });
+      success.total = data.total;
+      basketData.clearBasket();
+      orderData.clearOrder();
+    })
+    .catch(console.error);
+});
+
+// открытие модального окна 
+
 events.on('modal:open', () => {
 	page.pageLocked = true;
 });
+
+// закрытие модального окна
 
 events.on('modal:close', () => {
 	page.pageLocked = false;
