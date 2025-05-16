@@ -14,17 +14,12 @@ export interface ICard {
 
 export type TPayment  = 'cash' | 'card';
 export interface IUser {
-	payment?: TPayment | string; // способ оплаты товара
-    email?: string; // элетронный адрес пользователя
-    phone?: string; // телефон пользователя
-    address?: string; // адрес доставки
-    total?: number; // полная стоимость товара 
+	payment: TPayment | string; // способ оплаты товара
+    email: string; // элетронный адрес пользователя
+    phone: string; // телефон пользователя
+    address: string; // адрес доставки
+    total: number; // полная стоимость товара 
     items: string []; 
-}
-
-export interface IUserResponce {
-	id: string;
-	total: number;
 }
 
 // Описание стркутры данных массива карточек
@@ -37,6 +32,7 @@ export interface ICardsList {
 // Описание стркутуры данных корзины
 export interface IBasket{
     cards: ICard[]; // массив товаров в корзине
+    total: number;
 }
 
 export interface IPage {
@@ -44,10 +40,19 @@ export interface IPage {
     gallery: HTMLElement[];
     closed: boolean;
 }
+export interface IOrder {
+    payment: string;
+    address: string;
+}
+
+export interface IContacts {
+    email: string;
+    phone: string;
+}
 
 // Описание стркутуры для отображения успешного завершения заказа
-export interface ISuccessView {
-    total: string;
+export interface ISuccess {
+    total: number;
 }
 
 // типизация данных пользвателя в модальном окне с выбором способа оплаты и указания адреса отправки */
