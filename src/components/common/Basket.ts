@@ -1,21 +1,21 @@
 import { ICard, IBasket } from "../../types";
 import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
-import { ICardAction } from "./Card";
 import { createElement, ensureElement } from "../../utils/utils";
 
+// интерфейс кнопки
 interface IItemInBasketActions {
   onClick: (event: MouseEvent) => void;
 }
 
-// класс представления корзиины
+// класс представления корзины
 
 export class Basket extends Component<IBasket> {
 
     protected _basketList: HTMLElement; // список товаров
     protected _basketButton: HTMLButtonElement; // кнопка оформления заказа
     protected _basketPrice: HTMLSpanElement; // общая стоимость заказа
-    protected _basketItemDelete: HTMLButtonElement;
+    protected _basketItemDelete: HTMLButtonElement; // кнопка удаления карточки
     protected events: IEvents;
     
     constructor(protected container: HTMLElement, events: IEvents, protected action?: IItemInBasketActions) {
@@ -26,11 +26,15 @@ export class Basket extends Component<IBasket> {
         this._basketItemDelete = this.container.querySelector('.basket__item-delete');
         this.events = events;
 
+        // кнопка оформления заказа
+
         if (this._basketButton) {
 			this._basketButton.addEventListener('click', () => {
 				events.emit('order:open');
 			});
 		}
+
+        // кнопка удаления карточки
 
          if (this._basketItemDelete) {
             this._basketItemDelete.addEventListener('click', (evt) => {

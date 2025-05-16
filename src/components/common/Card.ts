@@ -22,14 +22,14 @@ export const categoryMap: { [key: string]: string } = {
 
 export class Card extends Component<ICard> {
 
-    protected cardId: string; 
-    protected cardText: HTMLElement; 
-    protected cardImage: HTMLImageElement; 
-    protected cardTitle: HTMLElement; 
-    protected cardCategory: HTMLElement; 
-    protected cardPrice: HTMLElement; 
-    protected cardButton: HTMLButtonElement;
-    protected cardIndex: HTMLElement;
+    protected cardId: string; // ID карточки
+    protected cardText: HTMLElement; // описание карточки
+    protected cardImage: HTMLImageElement; // картинка карточки
+    protected cardTitle: HTMLElement; // название карточки
+    protected cardCategory: HTMLElement; // категория карточки
+    protected cardPrice: HTMLElement; // цена карточки
+    protected cardButton: HTMLButtonElement; // кнопка добавления карточки в корзину
+    protected cardIndex: HTMLElement; // интекс карточки
     protected events: IEvents;
     
     
@@ -100,9 +100,13 @@ export class Card extends Component<ICard> {
         price === null ? this.setText(this.cardPrice, `бесценно`) : this.setText(this.cardPrice, `${price} синапсов`); 
     }
 
+    // получение индекса карточки
+
     get indexCard(): string {
 		return this.cardIndex.textContent || '';
 	}
+
+    // сохранение индекса карточки
 
 	set indexCard(value: string | string[]) {
 		this.setText(this.cardIndex, value);

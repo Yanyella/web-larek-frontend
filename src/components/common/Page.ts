@@ -7,10 +7,10 @@ import { ensureElement } from "../../utils/utils";
 
 export class Page extends Component<IPage> {
 
-	protected _pageWrapper: HTMLElement;
-	protected _headerBasket: HTMLButtonElement;
-	protected _headerBasketCounter: HTMLSpanElement;
-    protected _gallery: HTMLElement;
+	protected _pageWrapper: HTMLElement; // обертка страницы
+	protected _headerBasket: HTMLButtonElement; // иконка корзины
+	protected _headerBasketCounter: HTMLSpanElement; // количество карточек в корзине
+    protected _gallery: HTMLElement; // массив карточек
 
 	constructor(container: HTMLElement, protected events: IEvents) {
 		super(container);
@@ -25,14 +25,20 @@ export class Page extends Component<IPage> {
 		});
 	}
 
+	// сохранение карточек 
+
     set gallery(items: HTMLElement[]) {
         this._gallery.replaceChildren(...items);
     }
+
+	// блокироввка страницы 
 
 	set pageLocked(value: boolean) {
         this.toggleClass(this._pageWrapper, 'page__wrapper_locked', value);
 	}
 
+	// сохранение количества карточек 
+	
 	setBasketCounter(value: number) {
         this.setText(this._headerBasketCounter, String(value));
     }

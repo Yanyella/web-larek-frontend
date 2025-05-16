@@ -1,11 +1,14 @@
-import { ICard, IUser, IUserResponce } from '../../types';
+import { ICard, IUser } from '../../types';
 import { Api, ApiListResponse } from '../base/api';
 
 export interface IAppApi {
 	getCardList: () => Promise<ICard[]>;
-	orderUserResult: (order: IUser) => Promise<IUserResponce>;
+	orderUserResult: (order: IUser) => Promise<IUserResult>;
 }
-
+export interface IUserResult{
+  id: string;
+  total: number;
+}
 export class AppApi extends Api implements IAppApi{
 	readonly cdn: string;
 
@@ -23,7 +26,7 @@ export class AppApi extends Api implements IAppApi{
 		);
 	}
 
-	orderUserResult(order: IUser): Promise<IUserResponce> {
-		return this.post(`/order`, order).then((data: IUserResponce) => data);
+	orderUserResult(order: IUser): Promise<IUserResult> {
+		return this.post(`/order`, order).then((data: IUserResult) => data);
 	}
 }
