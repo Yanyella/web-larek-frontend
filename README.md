@@ -206,9 +206,9 @@ _gallery: HTMLElement; - массив карточек
 
 Методы:
 
--`set gallery(items: HTMLElement[])` - сохраняет галерею карточек
--`set pageLocked(value: boolean)` - добавляет или удаляет класс блокировки в зависимости от открытия модульного окна
--`setBasketCounter(value: number)` - сохраняет количество карточек 
+- `set gallery(items: HTMLElement[])` - сохраняет галерею карточек
+- `set pageLocked(value: boolean)` - добавляет или удаляет класс блокировки в зависимости от открытия модульного окна
+- `setBasketCounter(value: number)` - сохраняет количество карточек 
 
 #### Form
 
