@@ -53,7 +53,7 @@ interface ICard {
     price: number | null; - цена товара
     cardButton: string;
 }
-```\
+```
 описывает интерфейс пользователя
 ```
 type TPayment  = 'cash' | 'card'; - тип способа оплаты \
@@ -66,7 +66,7 @@ interface IUser {
     total: number; - полная стоимость товара 
     items: string []; 
 }
-```\
+```
 описывает структуру данных массива карточек
 ```
 interface ICardsList {
@@ -74,14 +74,14 @@ interface ICardsList {
     count: number; - стоимости 
     getCard(cardId: string): ICard | undefined; 
 }
-```\
+```
 описание стркутуры данных корзины
 ```
 interface IBasket{
     cards: ICard[]; // массив товаров в корзине
     total: number;
 }
-```\
+```
 описание структуры данных главной страницы
 ```
 interface IPage {
