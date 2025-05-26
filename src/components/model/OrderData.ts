@@ -1,13 +1,11 @@
-import { IUser, TPayment, IOrder, IContacts } from '../../types';
+import { IUser, TPayment } from '../../types';
 import { IEvents } from '../base/events';
-
-// Класс данных заказа
 export class OrderData implements IUser {
-	protected _payment: TPayment; // способ оплаты
-	protected _email = ''; // электронный адрес
-	protected _phone = ''; // телефон
-	protected _address = ''; // адресс
-	protected _total = 0; // цена заказа
+	protected _payment: TPayment = 'card'; // инициализация по умолчанию
+	protected _email = '';
+	protected _phone = '';
+	protected _address = '';
+	protected _total = 0;
 	protected _items: string[] = [];
 	protected formErrors: Partial<Record<keyof IUser, string>> = {};
 	protected events: IEvents;
@@ -27,94 +25,96 @@ export class OrderData implements IUser {
 
 	set email(value: string) {
 		this._email = value;
-		this.validateInfo();
+		this.validateContacts();
 	}
 
 	// сохранение телефона
 
 	set phone(value: string) {
 		this._phone = value;
-		this.validateInfo();
+		this.validateContacts();
 	}
 
-	// сохранение адреса
+	// сохранение адреса доставки
 
 	set address(value: string) {
 		this._address = value;
 		this.validateOrder();
 	}
 
-	get total(): number {
-		return this._total;
+	// сохранение полной стоимости
+
+	set total(value: number) {
+		this._total = value;
 	}
 
-	get items() {
-		return this._items;
+	// сохранение массива id карточек
+
+	set items(value: string[]) {
+		this._items = value;
 	}
 
-	// проверка заполнения всех полей (способ оплаты, цена)
+	// метод проверки заполнения всех полей
 
-	setOrderField(field: keyof IOrder, value: string) {
-		if (field === 'payment') {
+	isOrderFormValid(): boolean {
+		return !!this._address && !!this._payment;
+	}
+
+	// устанавливает значения всех полей
+
+	setOrderField(field: keyof IUser, value: string) {
+		if (field === 'email' || field === 'phone' || field === 'address') {
+			this[field] = value;
+		} else if (field === 'payment') {
 			this.payment = value as TPayment;
-		} else {
-			this.address = value;
 		}
 
-		if (this.validateOrder()) {
-			this.events.emit('order:ready', this.getOrderData());
-		}
-	}
-
-	// проверка заполнения всех полей (электронный адрес, телефон)
-
-	setContactsField(field: keyof IContacts, value: string) {
-		if (field === 'email') {
-			this.email = value;
-		} else {
-			this.phone = value;
-		}
-
-		if (this.validateInfo()) {
-			this.events.emit('contacts:ready', this.getOrderData());
+		if (field === 'email' || field === 'phone') {
+			this.validateContacts();
+		} else if (field === 'address' || field === 'payment') {
+			this.validateOrder();
 		}
 	}
 
-	// валидация при заполнении способа оплаты и адреса
+	// валидация данных заказа (адрес, способ оплаты)
 
 	validateOrder(): boolean {
 		const errors: typeof this.formErrors = {};
-
-		if (!this._payment) {
-			errors.payment = 'Не указан способ оплаты';
-		}
 		if (!this._address) {
 			errors.address = 'Не указан адрес';
 		}
-
+		if (!this._payment) {
+			errors.payment = 'Не указан способ оплаты';
+		}
 		this.formErrors = errors;
-		this.events.emit('orderDate:validation', this.formErrors);
-		return Object.keys(errors).length === 0;
+		this.events.emit('orderFormErrors:change', this.formErrors);
+		const isValid = Object.keys(errors).length === 0;
+		if (isValid) {
+			this.events.emit('order:ready', this.getOrderData());
+		}
+		return isValid;
 	}
 
-	// валидация при заполнении элетронного адреса и телефона
+	// валидация данных заказа (электронный адрес, телефон)
 
-	validateInfo(): boolean {
+	validateContacts(): boolean {
 		const errors: typeof this.formErrors = {};
-
 		if (!this._email) {
 			errors.email = 'Не указан email';
 		}
 		if (!this._phone) {
 			errors.phone = 'Не указан телефон';
 		}
-
 		this.formErrors = errors;
-		this.events.emit('contactsDate:validation', this.formErrors);
-		return Object.keys(errors).length === 0;
+		this.events.emit('contactsFormErrors:change', this.formErrors);
+		const isValid = Object.keys(errors).length === 0;
+		if (isValid) {
+			this.events.emit('contacts:ready', this.getOrderData());
+		}
+		return isValid;
 	}
 
-	// очистка форм
+	// очистка данных
 
 	clearOrder(): void {
 		this._payment = 'card';
@@ -126,7 +126,7 @@ export class OrderData implements IUser {
 		this.formErrors = {};
 	}
 
-	// возврат данных
+	// получение данных
 
 	getOrderData(): IUser {
 		return {

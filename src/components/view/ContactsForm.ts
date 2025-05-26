@@ -4,7 +4,6 @@ import { ensureElement } from '../../utils/utils';
 import { Form } from './Form';
 
 // класс представления формы контактных данных
-
 export class ContactsForm extends Form<IContacts> {
 	protected _phoneInput: HTMLInputElement;
 	protected _emailInput: HTMLInputElement;

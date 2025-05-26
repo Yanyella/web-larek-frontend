@@ -56,12 +56,7 @@ export class BasketData implements IBasket {
 	// удаление карточки из корзины
 
 	removeItemFromBasket(item: ICard): void {
-		this._cards = this._cards.filter((card) => {
-			if (card.id === item.id) {
-				return false;
-			}
-			return true;
-		});
+		this._cards = this._cards.filter((card) => card.id !== item.id);
 		this.events.emit('basket:changed', this._cards);
 	}
 
