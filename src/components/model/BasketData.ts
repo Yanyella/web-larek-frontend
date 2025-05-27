@@ -30,7 +30,7 @@ export class BasketData implements IBasket {
 
 	// проверяет добавлена ли карточка в корзину
 
-	private cardInBasket(item: ICard): boolean {
+	cardInBasket(item: ICard): boolean {
 		return this._cards.some((card) => card.id === item.id);
 	}
 
@@ -56,8 +56,11 @@ export class BasketData implements IBasket {
 	// удаление карточки из корзины
 
 	removeItemFromBasket(item: ICard): void {
-		this._cards = this._cards.filter((card) => card.id !== item.id);
-		this.events.emit('basket:changed', this._cards);
+		const index = this._cards.indexOf(item);
+		if (index > -1) {
+			this._cards.splice(index, 1);
+			this.events.emit('basket:changed', this._cards);
+		}
 	}
 
 	// очищает корзину

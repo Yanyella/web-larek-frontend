@@ -86,12 +86,24 @@ export class Card extends Component<ICard> {
 		});
 	}
 
+	// сохранение статуса кнопки
+
+	set buttonState(cardInBasket: boolean) {
+		if (!cardInBasket) {
+			return;
+		}
+		this.setDisabled(this.cardButton, cardInBasket);
+	}
+
 	// сохранение цены карточки
 
 	set price(price: number | null) {
-		price === null
-			? this.setText(this.cardPrice, `бесценно`)
-			: this.setText(this.cardPrice, `${price} синапсов`);
+		if (price === null) {
+			this.setText(this.cardPrice, `бесценно`);
+			this.setDisabled(this.cardButton, true);
+		} else {
+			this.setText(this.cardPrice, `${price} синапсов`);
+		}
 	}
 
 	// получение индекса карточки

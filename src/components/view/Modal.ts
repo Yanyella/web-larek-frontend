@@ -17,37 +17,25 @@ export class Modal extends Component<IModalData> {
 			container
 		);
 		this._content = ensureElement<HTMLElement>('.modal__content', container);
+
 		this._closeButton.addEventListener('click', this.close.bind(this));
 		this.container.addEventListener('click', this.close.bind(this));
 		this._content.addEventListener('click', (event) => event.stopPropagation());
-		this.handleEscUp = this.handleEscUp.bind(this);
 	}
 
-	set content(value: HTMLElement | null) {
-		if (value === null) {
-			this._content.innerHTML = '';
-		} else {
-			this._content.replaceChildren(value);
-		}
+	set content(value: HTMLElement) {
+		this._content.replaceChildren(value);
 	}
 
 	open() {
-		this.toggleClass(this.container, 'modal_active');
-		document.addEventListener('keyup', this.handleEscUp);
+		this.container.classList.add('modal_active');
 		this.events.emit('modal:open');
 	}
 
 	close() {
-		this.toggleClass(this.container, 'modal_active');
-		document.removeEventListener('keyup', this.handleEscUp);
+		this.container.classList.remove('modal_active');
 		this.content = null;
 		this.events.emit('modal:close');
-	}
-
-	handleEscUp(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			this.close();
-		}
 	}
 
 	render(data: IModalData): HTMLElement {
