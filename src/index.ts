@@ -97,36 +97,44 @@ events.on('preview:change', (item: ICard) => {
 		},
 	});
 
+	const renderCard = card.render({
+		id: item.id,
+		category: item.category,
+		description: item.description,
+		image: item.image,
+		price: item.price,
+		title: item.title,
+	});
+
+	// устанавливаем статус кнопки в зависимости от того добавлена карточка в корзину или нет
+
+	card.buttonState = basketData.cardInBasket(item);
+
 	modal.render({
-		content: card.render({
-			id: item.id,
-			category: item.category,
-			description: item.description,
-			image: item.image,
-			price: item.price,
-			title: item.title,
-		}),
+		content: renderCard,
 	});
 });
 
 // добавление товара в корзину
 
 events.on('card:basket', (item: ICard) => {
-	basketData.addCard(item);
 	modal.close();
-});
-
-// удаление товара из корзины
-
-events.on('card:delete', (item: ICard) => {
-	basketData.removeItemFromBasket(item);
-	basket.price = basketData.total;
+	basketData.addCard(item);
 	page.setBasketCounter(basketData.cards.length);
 });
 
 // открытие корзины
 
 events.on('basket:open', () => {
+	updateBasketContent();
+	return modal.render({
+		content: basket.render(),
+	});
+});
+
+// Функция обновления содержимого корзины
+
+function updateBasketContent() {
 	basket.cards = basketData.cards.map((item, index) => {
 		const cardInBasket = new Card(cloneTemplate(cardBasketTemplate), events, {
 			onClick: () => {
@@ -136,16 +144,32 @@ events.on('basket:open', () => {
 
 		cardInBasket.indexCard = (index + 1).toString();
 		return cardInBasket.render({
+			id: item.id,
 			title: item.title,
 			price: item.price,
 		});
 	});
+
+	updateBasket();
+}
+
+// функция обновления содержимого корзины
+
+function updateBasket() {
 	page.setBasketCounter(basketData.cards.length);
 	basket.price = basketData.total;
+}
 
-	return modal.render({
-		content: basket.render(),
-	});
+// удаление товара из корзины
+
+events.on('card:delete', (item: ICard) => {
+	basketData.removeItemFromBasket(item);
+
+	if (modal.open) {
+		updateBasketContent(); // перерисовываем содержимое
+	} else {
+		updateBasket(); // обновление цены и счетчика
+	}
 });
 
 // Изменение полей формы заказа
@@ -227,8 +251,6 @@ events.on('contacts:submit', () => {
 				onClick: () => {
 					modal.close();
 					events.emit('order:success', res);
-					basketData.clearBasket();
-					page.setBasketCounter(0);
 				},
 			});
 
@@ -237,10 +259,26 @@ events.on('contacts:submit', () => {
 					total: basketData.total,
 				}),
 			});
+			basketData.clearBasket();
+			orderData.clearOrder();
+			page.setBasketCounter(0);
+			basket.price = 0;
 		})
 		.catch((err) => {
 			console.error('Ошибка оформления заказа:', err);
 		});
+});
+
+// очищаем корзину после успешного заказа
+
+events.on('basket:cleared', () => {
+	page.setBasketCounter(0);
+	basket.price = 0;
+	basket.cards = [];
+
+	if (modal.open) {
+		modal.close();
+	}
 });
 
 // открытие модального окна
